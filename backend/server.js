@@ -1879,6 +1879,20 @@ app.get('/api/admin/export', async (req, res) => {
   }
 });
 
+// Serve frontend build in production / Render
+const fs = require('fs');
+const frontendDistPath = path.join(__dirname, '../frontend/dist');
+if (fs.existsSync(frontendDistPath)) {
+  console.log(`📦 Serving static frontend from: ${frontendDistPath}`);
+  app.use(express.static(frontendDistPath));
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api')) {
+      return next();
+    }
+    res.sendFile(path.join(frontendDistPath, 'index.html'));
+  });
+}
+
 // Start Express Server
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`=======================================================`);
